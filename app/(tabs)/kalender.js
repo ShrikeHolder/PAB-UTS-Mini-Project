@@ -5,10 +5,22 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Modal,
   FlatList,
 } from "react-native";
-import { getTransactionsByMonth } from "../data/queries";
+import {
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  HStack,
+  Pressable,
+  Box,
+  VStack,
+} from "@gluestack-ui/themed";
+import { getTransactionsByMonth } from "../../data/queries";
 
 export default function Kalender() {
   const today = new Date();
@@ -78,21 +90,22 @@ export default function Kalender() {
       <Text style={styles.title}>Kalender</Text>
 
       {/* Month Switcher */}
-      <View style={styles.monthRow}>
-        <TouchableOpacity
-          onPress={() => setCurrent(new Date(year, month - 1, 1))}
-        >
-          <Text style={styles.arrow}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.monthLabel}>
+      <HStack
+        justifyContent="space-between"
+        alignItems="center"
+        mb="$3"
+        px="$3"
+      >
+        <Pressable onPress={() => setCurrent(new Date(year, month - 1, 1))}>
+          <Text fontSize="$2xl">‹</Text>
+        </Pressable>
+        <Text fontSize="$xl" fontWeight="700">
           {current.toLocaleString("id-ID", { month: "long" })} {year}
         </Text>
-        <TouchableOpacity
-          onPress={() => setCurrent(new Date(year, month + 1, 1))}
-        >
-          <Text style={styles.arrow}>›</Text>
-        </TouchableOpacity>
-      </View>
+        <Pressable onPress={() => setCurrent(new Date(year, month + 1, 1))}>
+          <Text fontSize="$2xl">›</Text>
+        </Pressable>
+      </HStack>
 
       {/* Calendar Grid with Week Headers */}
       <View style={styles.grid}>
@@ -110,18 +123,16 @@ export default function Kalender() {
             "0"
           )}-${String(day).padStart(2, "0")}`;
           const tx = monthlyTx[dateKey] || [];
-
           const income = tx
             .filter((t) => t.type === "in")
             .reduce((s, t) => s + t.amount, 0);
           const expense = tx
             .filter((t) => t.type === "out")
             .reduce((s, t) => s + t.amount, 0);
-
           const isToday = dateKey === todayKey;
 
           return (
-            <TouchableOpacity
+            <Pressable
               key={`d-${i}`}
               style={[
                 styles.cell,
@@ -139,117 +150,123 @@ export default function Kalender() {
                   <View style={[styles.dot, { backgroundColor: "#e74c3c" }]} />
                 )}
               </View>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </View>
 
       {/* Untuk tampilin total in & out tanggal tertentu */}
-      {selectedDate && (
-        <>
-          <View style={styles.totalsRow}>
-            <View
-              style={[
-                styles.totalBox,
-                {
-                  backgroundColor:
-                    selectedTotals.in > 0 ? "#e6f9ed" : "#f0f0f0",
-                },
-              ]}
-            >
-              <Text
-                style={{
-                  color: selectedTotals.in > 0 ? "green" : "#999",
-                  fontWeight: "700",
-                }}
-              >
-                Pemasukan
-              </Text>
-              <Text style={{ fontSize: 16 }}>
-                +{selectedTotals.in.toLocaleString("id-ID") || "0"}
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.totalBox,
-                {
-                  backgroundColor:
-                    selectedTotals.out > 0 ? "#ffe6e6" : "#f0f0f0",
-                },
-              ]}
-            >
-              <Text
-                style={{
-                  color: selectedTotals.out > 0 ? "red" : "#999",
-                  fontWeight: "700",
-                }}
-              >
-                Pengeluaran
-              </Text>
-              <Text style={{ fontSize: 16 }}>
-                -{selectedTotals.out.toLocaleString("id-ID") || "0"}
-              </Text>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.showModalBtn}
-            onPress={() => setModalVisible(true)}
+      <HStack justifyContent="space-between" my="$4">
+        <Box
+          flex={1}
+          p="$3"
+          borderRadius="$md"
+          alignItems="center"
+          mx="$1"
+          bg={selectedTotals.in > 0 ? "$green100" : "$gray100"}
+        >
+          <Text
+            color={selectedTotals.in > 0 ? "$green600" : "$textLight500"}
+            fontWeight="700"
           >
-            <Text style={{ color: "#fff", fontWeight: "700" }}>
-              Tampilkan Semua Transaksi
-            </Text>
-          </TouchableOpacity>
-        </>
-      )}
-
-      {/* Modal */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={{ flex: 1, padding: 20 }}>
-          <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: 12 }}>
-            Riwayat {selectedDate}
+            Pemasukan
           </Text>
+          <Text fontSize="$md">
+            +{selectedTotals.in.toLocaleString("id-ID")}
+          </Text>
+        </Box>
 
-          {selectedDate && monthlyTx[selectedDate]?.length > 0 ? (
-            <FlatList
-              data={monthlyTx[selectedDate]}
-              keyExtractor={(item, idx) => idx.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.txItem}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontWeight: "600" }}>{item.desc}</Text>
-                    <Text style={{ color: "#666", fontSize: 12 }}>
-                      {item.category_name}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      color: item.type === "in" ? "green" : "red",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {item.type === "in" ? "+" : "-"}{" "}
-                    {item.amount.toLocaleString("id-ID")}
-                  </Text>
-                </View>
-              )}
-            />
-          ) : (
-            <Text style={{ textAlign: "center" }}>Tidak ada transaksi</Text>
-          )}
-
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            style={styles.closeModalBtn}
+        <Box
+          flex={1}
+          p="$3"
+          borderRadius="$md"
+          alignItems="center"
+          mx="$1"
+          bg={selectedTotals.out > 0 ? "$red100" : "$gray100"}
+        >
+          <Text
+            color={selectedTotals.out > 0 ? "$red600" : "$textLight500"}
+            fontWeight="700"
           >
-            <Text style={{ color: "#fff", fontWeight: "700" }}>Tutup</Text>
-          </TouchableOpacity>
-        </View>
+            Pengeluaran
+          </Text>
+          <Text fontSize="$md">
+            -{selectedTotals.out.toLocaleString("id-ID")}
+          </Text>
+        </Box>
+      </HStack>
+
+      <Pressable
+        bg="$blue500"
+        py="$3"
+        borderRadius="$md"
+        alignItems="center"
+        onPress={() => setModalVisible(true)}
+      >
+        <Text color="$white" fontWeight="700">
+          Tampilkan Semua Transaksi
+        </Text>
+      </Pressable>
+      <Modal
+        isOpen={modalVisible}
+        onClose={() => setModalVisible(false)}
+        size="full"
+      >
+        <ModalBackdrop />
+        <ModalContent>
+          <ModalHeader>
+            <Text fontSize="$xl" fontWeight="700">
+              Riwayat {selectedDate}
+            </Text>
+            <ModalCloseButton />
+          </ModalHeader>
+          <ModalBody>
+            {selectedDate && monthlyTx[selectedDate]?.length > 0 ? (
+              <VStack space="sm">
+                {monthlyTx[selectedDate].map((item, idx) => (
+                  <HStack
+                    key={idx}
+                    justifyContent="space-between"
+                    p="$3"
+                    borderWidth={1}
+                    borderColor="$borderLight200"
+                    borderRadius="$md"
+                  >
+                    <VStack>
+                      <Text fontWeight="600">{item.desc}</Text>
+                      <Text fontSize="$xs" color="$textLight500">
+                        {item.category_name}
+                      </Text>
+                    </VStack>
+                    <Text
+                      fontWeight="700"
+                      color={item.type === "in" ? "$green600" : "$red600"}
+                    >
+                      {item.type === "in" ? "+" : "-"}{" "}
+                      {item.amount.toLocaleString("id-ID")}
+                    </Text>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : (
+              <Text textAlign="center">Tidak ada transaksi</Text>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Pressable
+              bg="$blue500"
+              py="$3"
+              px="$4"
+              borderRadius="$md"
+              alignItems="center"
+              onPress={() => setModalVisible(false)}
+            >
+              <Text color="$white" fontWeight="700">
+                Tutup
+              </Text>
+            </Pressable>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
     </ScrollView>
   );

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { db } from "../data/database";
+import { db } from "../../data/database";
 
 export default function Home() {
   const [totalIn, setTotalIn] = useState(0);

@@ -10,15 +10,15 @@ import {
   Modal,
   Alert,
 } from "react-native";
-import { db } from "../data/database";
+import { db } from "../../data/database";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 
 // Icons
-import EditIcon from "../assets/edit.svg";
-import DeleteIcon from "../assets/delete.svg";
-import AddIcon from "../assets/add.svg";
-import SearchIcon from "../assets/search.svg";
+import EditIcon from "../../assets/edit.svg";
+import DeleteIcon from "../../assets/delete.svg";
+import AddIcon from "../../assets/add.svg";
+import SearchIcon from "../../assets/search.svg";
 
 export default function Dompet() {
   const [categories, setCategories] = useState([]);
