@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "mini-project",
-    "slug": "mini-project",
+    "name": "mini-project-v1",
+    "slug": "mini-project-v1",
+    "scheme": "miniapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
